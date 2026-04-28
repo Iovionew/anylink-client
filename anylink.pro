@@ -43,7 +43,7 @@ defineTest(copyIcon) {
     export(QMAKE_POST_LINK)
 }
 
-VERSION = 0.9.5
+VERSION = 0.9.6
 
 macx {
     # https://doc.qt.io/qt-6/qmake-variable-reference.html#qmake-info-plist The value of QMAKE_BUNDLE should not be set directly by the project.

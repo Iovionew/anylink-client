@@ -1,5 +1,3 @@
-> 动态域名分流使用[说明](./DynamicSplitTunneling.md)
-
 ## AnyLink Secure Client
 
 This is an SSL VPN client that supports OpenConnect or Cisco's AnyConnect [SSL VPN Protocol](https://datatracker.ietf.org/doc/html/draft-mavrogiannopoulos-openconnect-03).  It use [sslcon](https://github.com/tlslink/sslcon) as the core to communicate with the server.
@@ -18,9 +16,8 @@ Currently the following servers are supported,
 
 ## Download
 
-- Fork this project and compile it using github action
-- Join the QQ group by donating to the project
-- You may be able to find releases from other forks
+- Fork this project and compile it using [github action](https://github.com/tlslink/anylink-client/blob/main/.github/workflows/release.yml)
+- Or download from [Releases](https://github.com/tlslink/anylink-client/releases)
 
 ### Windows
 
@@ -40,13 +37,12 @@ You can use the `wget` or `curl` command to download the dmg file. If you use a 
 xattr -r -d com.apple.quarantine anylink-*.dmg
 ```
 
-Then mount the dmg file and double-click the installer to install it. During the installation process, you need to grant root permissions to the software.
+Then mount the dmg file and double-click the installer to install it. During the installation process, you need to grant permissions to the software.
 
-> For the arm64 version, the current installer requires Rosetta to run, but the installed program is native on the Apple silicon platform.
 
 ### Linux
 
-You should use `anylink-linux-amd64.tar.gz` with Ubuntu 20.04 or newer.
+You should use `anylink-linux-amd64.tar.gz` with Ubuntu 22.04 or newer.
 
 ```bash
 tar -zxvf anylink-*.tar.gz
@@ -62,4 +58,4 @@ Enter the installation directory and execute the uninstall program.
 
 | You may want to join in the QQ Group(66899589) to get some help. |
 | :----------------------------------------------------------: |
-| <img src="./assets/donate.JPG" width="150px" height="150px" />      ![](./images/qqgroup.png) |
+|           ![](./images/qqgroup.png)                   |

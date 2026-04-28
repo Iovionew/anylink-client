@@ -12,7 +12,7 @@
 
 void outdateCheck(QWidget *parent)
 {
-    if (QDate::currentDate().daysTo(QDate(2028, 5, 1)) < 0) {
+    if (QDate::currentDate().daysTo(QDate(2030, 5, 1)) < 0) {
         error(QObject::tr("The current version of the software has expired, please install the "
                           "latest version!"),
               parent);

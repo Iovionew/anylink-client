@@ -10,10 +10,12 @@
 #endif
 #include <QDesktopServices>
 
-void outdateCheck()
+void outdateCheck(QWidget *parent)
 {
-    if (QDate::currentDate().daysTo(QDate(2024,5,1)) < 0) {
-        error(QObject::tr("The current version of the software has expired, please install the latest version!"));
+    if (QDate::currentDate().daysTo(QDate(2028, 5, 1)) < 0) {
+        error(QObject::tr("The current version of the software has expired, please install the "
+                          "latest version!"),
+              parent);
     }
 }
 
@@ -48,10 +50,11 @@ int main(int argc, char *argv[])
         }
     }
 
-//    outdateCheck();
 
     AnyLink w;
     w.show();
+
+    outdateCheck(&w);
 
     QApplication::setQuitOnLastWindowClosed(false);
     QObject::connect(&app, &SingleApplication::instanceStarted, &w, &AnyLink::showNormal);

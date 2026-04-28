@@ -3,7 +3,7 @@
 本软件开源，同任何其它开源软件一样，可能会被第三方修改并重新打包发布，建议采取如下措施避免安全隐患：
 
 - 自行下载 [项目源代码](https://github.com/tlslink/anylink-client) 编译使用
-- 在 [官网](https://anylink.pro) 而**不**是第三方网站（包括 CSDN、各种网盘、群共享）等渠道下载本软件的预编译版本
+- 在 [官网](https://github.com/tlslink/anylink-client/releases) 而**不**是第三方网站（包括 CSDN、各种网盘、群共享）等渠道下载本软件的预编译版本
 - 服务端开启OTP（一次性密码验证）功能
 
 另外您可能还需要采取如下措施：

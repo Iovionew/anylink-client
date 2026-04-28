@@ -12,71 +12,68 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # https://github.com/actions/runner-images#available-images
         build: [linux-latest, linux, linux-arm64, windows, macos-arm64]
         include:
         - build: linux-latest
           os: ubuntu-24.04
-          qt: 6.9.1
+          qt: 6.11.0
           arch: linux_gcc_64
           qt-modules: 'qtwebsockets'
-          installer-name: anylink-linux-amd64.run
+          installer-name: anylink-client-linux-amd64.run
         - build: linux
           os: ubuntu-22.04
-          qt: 6.9.1
+          qt: 6.9.3
           arch: linux_gcc_64
           qt-modules: 'qtwebsockets'
-          installer-name: anylink-linux-amd64.run
+          installer-name: anylink-client-linux-amd64.run
         - build: linux-arm64
           os: ubuntu-24.04-arm
-          qt: 6.9.1
+          qt: 6.11.0
           arch: linux_gcc_arm64
           qt-modules: 'qtwebsockets'
-          installer-name: anylink-linux-arm64.run
+          installer-name: anylink-client-linux-arm64.run
         - build: windows
           os: windows-2022
-          qt: 6.10.1
+          qt: 6.11.0
           arch: win64_msvc2022_64
           qt-modules: 'qtwebsockets'
           qt-tools: 'tools_qtcreator_gui'
-          installer-name: anylink-windows10-amd64.exe
+          installer-name: anylink-client-windows10-amd64.exe
         - build: macos-arm64
           os: macos-14
-          qt: 6.9.1
+          qt: 6.11.0
           arch: clang_64
           qt-modules: 'qtwebsockets'
-          installer-name: anylink-installer
+          installer-name: anylink-client-installer
     steps:
     - if: startsWith(github.ref, 'refs/heads/')
       shell: bash
       run: |
         if [ "${{ matrix.build }}" = "linux-latest" ]; then
-          echo "ARCHIVE_NAME=anylink-linux_latest-amd64.tar.gz" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=anylink-client-linux_latest-amd64.tar.gz" >> $GITHUB_ENV
         elif [ "${{ matrix.build }}" = "linux" ]; then
-          echo "ARCHIVE_NAME=anylink-linux-amd64.tar.gz" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=anylink-client-linux-amd64.tar.gz" >> $GITHUB_ENV
         elif [ "${{ matrix.build }}" = "linux-arm64" ]; then
-          echo "ARCHIVE_NAME=anylink-linux-arm64.tar.gz" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=anylink-client-linux-arm64.tar.gz" >> $GITHUB_ENV
         elif [ "${{ matrix.build }}" = "windows" ]; then
-          echo "ARCHIVE_NAME=anylink-windows10-amd64.zip" >> $GITHUB_ENV
-        elif [ "${{ matrix.build }}" = "macos" ]; then
-          echo "ARCHIVE_NAME=anylink-macOS-amd64.dmg" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=anylink-client-windows10-amd64.zip" >> $GITHUB_ENV
         elif [ "${{ matrix.build }}" = "macos-arm64" ]; then
-          echo "ARCHIVE_NAME=anylink-macOS-arm64.dmg" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=anylink-client-macOS-arm64.dmg" >> $GITHUB_ENV
         fi
     - if: startsWith(github.ref, 'refs/tags/')
       shell: bash
       run: |
         if [ "${{ matrix.build }}" = "linux-latest" ]; then
-          echo "ARCHIVE_NAME=anylink-${{ github.ref_name }}-linux_latest-amd64.tar.gz" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=anylink-client-${{ github.ref_name }}-linux_latest-amd64.tar.gz" >> $GITHUB_ENV
         elif [ "${{ matrix.build }}" = "linux" ]; then
-          echo "ARCHIVE_NAME=anylink-${{ github.ref_name }}-linux-amd64.tar.gz" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=anylink-client-${{ github.ref_name }}-linux-amd64.tar.gz" >> $GITHUB_ENV
         elif [ "${{ matrix.build }}" = "linux-arm64" ]; then
-          echo "ARCHIVE_NAME=anylink-${{ github.ref_name }}-linux-arm64.tar.gz" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=anylink-client-${{ github.ref_name }}-linux-arm64.tar.gz" >> $GITHUB_ENV
         elif [ "${{ matrix.build }}" = "windows" ]; then
-          echo "ARCHIVE_NAME=anylink-${{ github.ref_name }}-windows10-amd64.zip" >> $GITHUB_ENV
-        elif [ "${{ matrix.build }}" = "macos" ]; then
-          echo "ARCHIVE_NAME=anylink-${{ github.ref_name }}-macOS-amd64.dmg" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=anylink-client-${{ github.ref_name }}-windows10-amd64.zip" >> $GITHUB_ENV
         elif [ "${{ matrix.build }}" = "macos-arm64" ]; then
-          echo "ARCHIVE_NAME=anylink-${{ github.ref_name }}-macOS-arm64.dmg" >> $GITHUB_ENV
+          echo "ARCHIVE_NAME=anylink-client-${{ github.ref_name }}-macOS-arm64.dmg" >> $GITHUB_ENV
         fi
     - name: Install dependencies
       shell: bash
@@ -91,7 +88,7 @@ jobs:
           libxcb-dpms0 libxcb-dri2-0 libxcb-dri3-0 libxcb-ewmh2 libxcb-glx0 \
           libxcb-present0 libxcb-randr0 libxcb-record0 libxcb-render0 libxcb-res0 \
           libxcb-screensaver0 libxcb-shape0 libxcb-shm0 libxcb-sync1 libxcb-util1 \
-          libxkbcommon-x11-dev extra-cmake-modules fcitx-libs-dev
+          libxkbcommon-x11-dev extra-cmake-modules libsecret-1-dev
         fi
     # https://github.com/ilammy/msvc-dev-cmd
     - if: matrix.build == 'windows'
@@ -109,7 +106,8 @@ jobs:
         cache: false
         cache-key-prefix: 'cache-qt'
         extra: '--base https://mirrors.ocf.berkeley.edu/qt'  # https://download.qt.io/static/mirrorlist/
-    - uses: actions/checkout@v3
+        aqtsource: 'git+https://github.com/miurahr/aqtinstall.git'
+    - uses: actions/checkout@v6
       with:
         submodules: recursive
         fetch-depth: 0
@@ -119,12 +117,6 @@ jobs:
         if [[ "${{ matrix.build }}" == linux* ]]; then
           qmake
           make -j $(nproc)
-          wget -c -nv https://github.com/fcitx/fcitx-qt5/archive/refs/heads/master.zip
-          unzip master.zip
-          cd fcitx-qt5-master
-          cmake -DENABLE_QT5=Off -DENABLE_QT6=On .
-          make -j $(nproc)
-          cd ..
         elif [[ "${{ matrix.build }}" == "windows" ]]; then
           rm "C:\Program Files\Git\usr\bin\link.exe"
           qmake
@@ -145,14 +137,13 @@ jobs:
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
           chmod a+x linuxdeployqt-continuous-x86_64.AppImage
           ./linuxdeployqt-continuous-x86_64.AppImage out/opt/anylink/bin/anylink -extra-plugins=platformthemes/libqgtk3.so -no-copy-copyright-files -no-translations -unsupported-allow-new-glibc
-          cp fcitx-qt5-master/qt6/platforminputcontext/libfcitxplatforminputcontextplugin-qt6.so out/opt/anylink/plugins/platforminputcontexts/
           wget -c -nv https://github.com/tlslink/sslcon/releases/download/latest/sslcon-linux-amd64.tar.gz
           tar -zxvf sslcon-*.tar.gz
           cp vpnagent sslcon out/opt/anylink/bin
           7z a installer/packages/root/data/anylink.7z ./out/opt/anylink/*
           cd installer
-          wget -c -nv https://download.qt.io/online/qtsdkrepository/linux_x64/ifw/tools_ifw_410/qt.tools.ifw.410/4.10.0-0-202506090530ifw-linux-x64.7z
-          7z x -y 4.10.0-*.7z
+          wget -c -nv https://download.qt.io/online/qtsdkrepository/linux_x64/ifw/tools_ifw_411/qt.tools.ifw.411/4.11.0-0-202603231357ifw-linux-x64.7z
+          7z x -y 4.11*.7z
           ./bin/binarycreator --offline-only -c config/config.xml -p packages ${{ matrix.installer-name }}
           chmod +x ./*.run
           tar -zcvf "${{ github.workspace }}"/archive/${{ env.ARCHIVE_NAME }} ${{ matrix.installer-name }}
@@ -161,14 +152,13 @@ jobs:
           wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-aarch64.AppImage"
           chmod a+x linuxdeployqt-continuous-aarch64.AppImage
           ./linuxdeployqt-continuous-aarch64.AppImage out/opt/anylink/bin/anylink -extra-plugins=platformthemes/libqgtk3.so -no-copy-copyright-files -no-translations -unsupported-allow-new-glibc
-          cp fcitx-qt5-master/qt6/platforminputcontext/libfcitxplatforminputcontextplugin-qt6.so out/opt/anylink/plugins/platforminputcontexts/
           wget -c -nv https://github.com/tlslink/sslcon/releases/download/latest/sslcon-linux-arm64.tar.gz
           tar -zxvf sslcon-*.tar.gz
           cp vpnagent sslcon out/opt/anylink/bin
           7z a installer/packages/root/data/anylink.7z ./out/opt/anylink/*
           cd installer
-          wget -c -nv https://download.qt.io/online/qtsdkrepository/linux_arm64/ifw/tools_ifw_410/qt.tools.ifw.410/4.10.0-0-202506090530ifw-linux-arm64.7z
-          7z x -y 4.10.0-*.7z
+          wget -c -nv https://download.qt.io/online/qtsdkrepository/linux_arm64/ifw/tools_ifw_411/qt.tools.ifw.411/4.11.0-0-202603231357ifw-linux-arm64.7z
+          7z x -y 4.11*.7z
           ./bin/binarycreator --offline-only -c config/config.xml -p packages ${{ matrix.installer-name }}
           chmod +x ./*.run
           tar -zcvf "${{ github.workspace }}"/archive/${{ env.ARCHIVE_NAME }} ${{ matrix.installer-name }}
@@ -179,32 +169,31 @@ jobs:
           cp vpnagent.exe sslcon.exe out/bin
           7z a installer/packages/root/data/anylink.7z ./out/bin/*
           cd installer
-          curl -k -O -L https://mirrors.ustc.edu.cn/qtproject/archive/qt-installer-framework/4.5.2/QtInstallerFramework-windows-x64-4.5.2.exe
-          ./QtInstallerFramework-windows-x64-4.5.2.exe --al --da -c -t `pwd`/ifw in
-          ./ifw/bin/binarycreator --offline-only -c config/config.xml -p packages ${{ matrix.installer-name }}
-          # https://bugreports.qt.io/browse/QTIFW-2295
+          curl -k -O -L https://download.qt.io/online/qtsdkrepository/windows_x86/ifw/tools_ifw_411/qt.tools.ifw.411/4.11.0-0-202603231357ifw-win-x64.7z
+          7z x -y 4.11*.7z
+          ./bin/binarycreator.exe --offline-only -c config/config.xml -p packages ${{ matrix.installer-name }}
+          # https://qt-project.atlassian.net/browse/QTIFW-2295
           editbin /subsystem:windows ${{ matrix.installer-name }}
           7z a -tzip -r "${{ github.workspace }}"/archive/${{ env.ARCHIVE_NAME }} ${{ matrix.installer-name }}
         elif [ "${{ matrix.build }}" = "macos-arm64" ]; then
           cd installer
-          curl -k -O -L https://mirrors.ustc.edu.cn/qtproject/archive/qt-installer-framework/4.6.1/QtInstallerFramework-macOS-x64-4.6.1.dmg
-          hdiutil attach ./QtInstallerFramework-macOS-x64-4.6.1.dmg
-          /Volumes/QtInstallerFramework-macOS-x64-4.6.1/QtInstallerFramework-macOS-x64-4.6.1.app/Contents/MacOS/QtInstallerFramework-macOS-x64-4.6.1 --al --da -c -t `pwd`/ifw in
+          curl -k -O -L https://download.qt.io/online/qtsdkrepository/mac_x64/ifw/tools_ifw_411/qt.tools.ifw.411/4.11.0-0-202603311245ifw-mac-universal.7z
+          7z x -y 4.11*.7z
           cd ../out/bin
           curl -k -L -O https://github.com/tlslink/sslcon/releases/download/latest/sslcon-macOS-arm64.tar.gz
           tar -zxvf sslcon-*.tar.gz
           cp vpnagent sslcon AnyLink.app/Contents/MacOS
           macdeployqt AnyLink.app
           mkdir -p ../../installer/packages/root/data
-          ../../installer/ifw/bin/archivegen ../../installer/packages/root/data/anylink.7z ./AnyLink.app
+          ../../installer/bin/archivegen ../../installer/packages/root/data/anylink.7z ./AnyLink.app
           cd ../../installer
-          ./ifw/bin/binarycreator --offline-only -c config/config.xml -p packages ${{ matrix.installer-name }}
+          ./bin/binarycreator --offline-only -c config/config.xml -p packages ${{ matrix.installer-name }}
           hdiutil create -fs HFS+ -srcfolder ${{ matrix.installer-name }}.app -format UDZO "${{ github.workspace }}"/archive/${{ env.ARCHIVE_NAME }}
         fi
 
     - if: startsWith(github.ref, 'refs/heads/')
       name: Continuous release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       with:
         name: Continuous release
         files: archive/${{ env.ARCHIVE_NAME }}
@@ -212,15 +201,16 @@ jobs:
         
     - if: startsWith(github.ref, 'refs/tags/') && (matrix.build == 'windows')
       name: Tagged release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       with:
         name: Release build (${{ github.ref_name }})
         body: 'See [README](https://github.com/tlslink/anylink-client) for more details.'
         files: archive/${{ env.ARCHIVE_NAME }}
         generate_release_notes: true
+        
     - if: startsWith(github.ref, 'refs/tags/') && (matrix.build != 'windows')
       name: Tagged release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       with:
         name: Release build (${{ github.ref_name }})
         files: archive/${{ env.ARCHIVE_NAME }}

@@ -177,8 +177,8 @@ jobs:
           7z a -tzip -r "${{ github.workspace }}"/archive/${{ env.ARCHIVE_NAME }} ${{ matrix.installer-name }}
         elif [ "${{ matrix.build }}" = "macos-arm64" ]; then
           cd installer
-          curl -k -O -L https://download.qt.io/online/qtsdkrepository/mac_x64/ifw/tools_ifw_411/qt.tools.ifw.411/4.11.0-0-202603311245ifw-mac-universal.7z
-          7z x -y 4.11*.7z
+          curl -k -O -L https://download.qt.io/online/qtsdkrepository/mac_x64/ifw/tools_ifw_49/qt.tools.ifw.49/4.9.0-0-202503040800ifw-mac-x64.7z
+          7z x -y 4.9*.7z
           cd ../out/bin
           curl -k -L -O https://github.com/tlslink/sslcon/releases/download/latest/sslcon-macOS-arm64.tar.gz
           tar -zxvf sslcon-*.tar.gz

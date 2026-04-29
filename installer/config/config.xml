@@ -3,8 +3,8 @@
     <Name>AnyLink Secure Client</Name>
     <Version>0.9.6</Version>
     <Title>AnyLink Secure Client</Title>
-    <Publisher>https://anylink.pro</Publisher>
-    <ProductUrl>https://anylink.pro</ProductUrl>
+    <Publisher>https://tlslink.com</Publisher>
+    <ProductUrl>https://tlslink.com</ProductUrl>
     <InstallerWindowIcon>anylink64.png</InstallerWindowIcon>
     <InstallerApplicationIcon>anylink</InstallerApplicationIcon>
     <StartMenuDir>AnyLink Secure Client</StartMenuDir>

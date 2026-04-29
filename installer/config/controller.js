@@ -48,7 +48,7 @@ Controller.prototype.onInstallationFinished = function ()
 //{
 //    try {
 //        if (installer.isUninstaller()) {
-//            QDesktopServices.openUrl("https://anylink.pro");
+//            QDesktopServices.openUrl("https://tlslink.com");
 //        }
 //    } catch(e) {
 //        console.log(e);

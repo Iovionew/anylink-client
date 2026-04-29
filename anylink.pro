@@ -66,9 +66,9 @@ win32 {
     #RC_FILE = resource.rc
     RC_ICONS = resource\windows\anylink.ico
     QMAKE_TARGET_PRODUCT = "AnyLink Secure Client"
-    QMAKE_TARGET_COMPANY = "https://anylink.pro"
+    QMAKE_TARGET_COMPANY = "https://tlslink.com"
     QMAKE_TARGET_DESCRIPTION = "AnyLink Secure Client"
-    QMAKE_TARGET_COPYRIGHT = "Copyright 2022-2023 https://anylink.pro. All rights reserved."
+    QMAKE_TARGET_COPYRIGHT = "Copyright 2022-2023 https://tlslink.com. All rights reserved."
 
     DESTDIR = $$PWD/out/bin
     copyIcon(assets/anylink64.png resource/windows/anylink.ico)

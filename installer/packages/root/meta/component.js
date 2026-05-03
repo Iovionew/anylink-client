@@ -11,35 +11,38 @@ function Component()
 
     if (systemInfo.kernelType === "linux") {
         installer.setValue("TargetDir", targetDir + "anylink");
-
         uninstaller = installer.value("TargetDir") + "/" + uninstaller;
 
     } else if (systemInfo.kernelType === "winnt") {
         installer.setValue("TargetDir", targetDir + "AnyLink");
-
         uninstaller = installer.value("TargetDir") + "/" + uninstaller + ".exe";
+
+        console.log("csc_ui running status: " + installer.isProcessRunning("csc_ui"))
+
+        // request when component really installing
+        if (installer.isProcessRunning("csc_ui")) {
+            component.addStopProcessForUpdateRequest("csc_ui");
+        }
     } else if (systemInfo.kernelType === "darwin") {
         installer.setValue("TargetDir", targetDir + "AnyLink");
-
         uninstaller = installer.value("TargetDir") + "/" + uninstaller + ".app/Contents/MacOS/uninstall";
+    }
+
+    // kill self when install and uninstall
+    if (systemInfo.kernelType === "darwin") {
+        if (installer.isProcessRunning("AnyLink")) {
+            component.addStopProcessForUpdateRequest("AnyLink");
+        }
+    } else {
+        if (installer.isProcessRunning("anylink")) {
+            component.addStopProcessForUpdateRequest("anylink");
+        }
     }
 
     if (installer.isInstaller()) {
         if (installer.fileExists(uninstaller)) {
             installer.execute(uninstaller);
         }
-//         console.log("anylink running status: " + installer.isProcessRunning("anylink"))
-//         console.log("vpnui running status: " + installer.isProcessRunning("vpnui"))
-
-        // request when component really installing
-        component.addStopProcessForUpdateRequest("vpnui");
-    }
-
-    if (systemInfo.kernelType === "darwin") {
-        component.addStopProcessForUpdateRequest("AnyLink");
-    } else {
-        // kill self when install and uninstall
-        component.addStopProcessForUpdateRequest("anylink");
     }
 }
 

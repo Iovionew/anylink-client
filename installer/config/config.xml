@@ -5,7 +5,6 @@
     <Title>AnyLink Secure Client</Title>
     <Publisher>https://tlslink.com</Publisher>
     <ProductUrl>https://tlslink.com</ProductUrl>
-    <InstallerWindowIcon>anylink64.png</InstallerWindowIcon>
     <InstallerApplicationIcon>anylink</InstallerApplicationIcon>
     <StartMenuDir>AnyLink Secure Client</StartMenuDir>
     <TargetDir>@ApplicationsDir@/</TargetDir>

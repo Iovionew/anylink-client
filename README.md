@@ -16,8 +16,12 @@ Currently the following servers are supported,
 
 ## Download
 
-- Fork this project and compile it using [github action](https://github.com/tlslink/anylink-client/blob/main/.github/workflows/release.yml)
-- Or download from [Releases](https://github.com/tlslink/anylink-client/releases)
+Download from [Releases](https://github.com/tlslink/anylink-client/releases) Or fork this project and compile it using [github action](https://github.com/tlslink/anylink-client/blob/main/.github/workflows/release.yml)
+
+If you are using GitHub Actions for compilation, you must either comment out the macOS platform or have an Apple Developer account and configure the relevant environment variables. Please refer to the following information.
+
+- [import-codesign-certs](https://github.com/apple-actions/import-codesign-certs)
+- [notary-tools](https://github.com/GuillaumeFalourd/notary-tools)
 
 ### Windows
 
@@ -25,20 +29,9 @@ Please use Windows 10 or newer.
 
 ### macOS
 
-- No App Store version
-- Not digitally signed or notarized by Apple
+Starting from version v0.9.6, only the Apple Silicon platform is supported, and the application is digitally signed and notarized by Apple.
 
-Due to the above reasons, it is only recommended for users with certain macOS system experience.
-
-You can use the `wget` or `curl` command to download the dmg file. If you use a web browser to download the file, please execute the following command,
-
-
-```bash
-xattr -r -d com.apple.quarantine anylink-*.dmg
-```
-
-Then mount the dmg file and double-click the installer to install it. During the installation process, you need to grant permissions to the software.
-
+Just double-click the installer to install the app. During the installation process, you need to grant permissions to the software.
 
 ### Linux
 

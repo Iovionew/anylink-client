@@ -90,10 +90,17 @@ jobs:
           libxcb-screensaver0 libxcb-shape0 libxcb-shm0 libxcb-sync1 libxcb-util1 \
           libxkbcommon-x11-dev extra-cmake-modules libsecret-1-dev
         fi
-    # https://github.com/ilammy/msvc-dev-cmd
+    - if: matrix.build == 'macos-arm64'
+      name: Import Code-Signing Certificates
+      uses: Apple-Actions/import-codesign-certs@v7
+      with: 
+        p12-file-base64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+        p12-password: ${{ secrets.P12_PASSWORD }}
     - if: matrix.build == 'windows'
       name: Setup msvc
-      uses: ilammy/msvc-dev-cmd@v1
+      uses: TheMrMilchmann/setup-msvc-dev@v4
+      with:
+        arch: x64
     - name: Install Qt
       # https://github.com/jurplel/install-qt-action
       uses: jurplel/install-qt-action@v4
@@ -142,6 +149,7 @@ jobs:
           cp vpnagent sslcon out/opt/anylink/bin
           7z a installer/packages/root/data/anylink.7z ./out/opt/anylink/*
           cd installer
+          rm -fr packages/maintenance
           wget -c -nv https://download.qt.io/online/qtsdkrepository/linux_x64/ifw/tools_ifw_411/qt.tools.ifw.411/4.11.0-0-202603231357ifw-linux-x64.7z
           7z x -y 4.11*.7z
           ./bin/binarycreator --offline-only -c config/config.xml -p packages ${{ matrix.installer-name }}
@@ -157,6 +165,7 @@ jobs:
           cp vpnagent sslcon out/opt/anylink/bin
           7z a installer/packages/root/data/anylink.7z ./out/opt/anylink/*
           cd installer
+          rm -fr packages/maintenance
           wget -c -nv https://download.qt.io/online/qtsdkrepository/linux_arm64/ifw/tools_ifw_411/qt.tools.ifw.411/4.11.0-0-202603231357ifw-linux-arm64.7z
           7z x -y 4.11*.7z
           ./bin/binarycreator --offline-only -c config/config.xml -p packages ${{ matrix.installer-name }}
@@ -169,6 +178,7 @@ jobs:
           cp vpnagent.exe sslcon.exe out/bin
           7z a installer/packages/root/data/anylink.7z ./out/bin/*
           cd installer
+          rm -fr packages/maintenance
           curl -k -O -L https://download.qt.io/online/qtsdkrepository/windows_x86/ifw/tools_ifw_411/qt.tools.ifw.411/4.11.0-0-202603231357ifw-win-x64.7z
           7z x -y 4.11*.7z
           ./bin/binarycreator.exe --offline-only -c config/config.xml -p packages ${{ matrix.installer-name }}
@@ -177,20 +187,33 @@ jobs:
           7z a -tzip -r "${{ github.workspace }}"/archive/${{ env.ARCHIVE_NAME }} ${{ matrix.installer-name }}
         elif [ "${{ matrix.build }}" = "macos-arm64" ]; then
           cd installer
-          curl -k -O -L https://download.qt.io/online/qtsdkrepository/mac_x64/ifw/tools_ifw_49/qt.tools.ifw.49/4.9.0-0-202503040800ifw-mac-x64.7z
-          7z x -y 4.9*.7z
+          curl -k -O -L https://download.qt.io/online/qtsdkrepository/mac_x64/ifw/tools_ifw_411/qt.tools.ifw.411/4.11.0-0-202603311245ifw-mac-universal.7z
+          7z x -y 4.11*.7z
           cd ../out/bin
+          macdeployqt AnyLink.app
+          IDENTITY=$(security find-identity -v -p codesigning | grep "Developer ID Application" | awk -F\" 'NR==1 {print $2}')
+          echo $IDENTITY
+          codesign --deep --force --sign "$IDENTITY" AnyLink.app
           curl -k -L -O https://github.com/tlslink/sslcon/releases/download/latest/sslcon-macOS-arm64.tar.gz
           tar -zxvf sslcon-*.tar.gz
           cp vpnagent sslcon AnyLink.app/Contents/MacOS
-          macdeployqt AnyLink.app
           mkdir -p ../../installer/packages/root/data
+          mkdir -p ../../installer/packages/maintenance/data
           ../../installer/bin/archivegen ../../installer/packages/root/data/anylink.7z ./AnyLink.app
           cd ../../installer
-          ./bin/binarycreator --offline-only -c config/config.xml -p packages ${{ matrix.installer-name }}
+          ./bin/binarycreator -f -c config/config.xml -p packages --mt
+          lipo uninstall.app/Contents/MacOS/uninstall -remove x86_64 -output uninstall.app/Contents/MacOS/uninstall
+          codesign --deep --force --sign "$IDENTITY" uninstall.app
+          ./bin/archivegen ./packages/maintenance/data/uninstall.7z ./uninstall.app
+          ./bin/binarycreator -f -c config/config.xml -p packages ${{ matrix.installer-name }}
+          lipo ${{ matrix.installer-name }}.app/Contents/MacOS/${{ matrix.installer-name }} -remove x86_64 -output ${{ matrix.installer-name }}.app/Contents/MacOS/${{ matrix.installer-name }}
+          codesign --deep --force --options=runtime --sign "$IDENTITY" ${{ matrix.installer-name }}.app
+          ditto -c -k --keepParent ${{ matrix.installer-name }}.app ${{ matrix.installer-name }}.zip
+          xcrun notarytool submit ${{ matrix.installer-name }}.zip --apple-id ${{ secrets.APPLE_ID }} --team-id ${{ secrets.TEAM_ID }} --password ${{ secrets.APP_PASSWORD }} --wait
+          xcrun stapler staple ${{ matrix.installer-name }}.app
           hdiutil create -fs HFS+ -srcfolder ${{ matrix.installer-name }}.app -format UDZO "${{ github.workspace }}"/archive/${{ env.ARCHIVE_NAME }}
         fi
-
+        
     - if: startsWith(github.ref, 'refs/heads/')
       name: Continuous release
       uses: softprops/action-gh-release@v3
@@ -198,6 +221,7 @@ jobs:
         name: Continuous release
         files: archive/${{ env.ARCHIVE_NAME }}
         tag_name: latest
+        prerelease: true
         
     - if: startsWith(github.ref, 'refs/tags/') && (matrix.build == 'windows')
       name: Tagged release

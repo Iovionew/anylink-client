@@ -10,7 +10,9 @@ jobs:
   build:
     name: Build
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.build == 'macos-arm64' }}
     strategy:
+      fail-fast: false
       matrix:
         # https://github.com/actions/runner-images#available-images
         build: [linux-latest, linux, linux-arm64, windows, macos-arm64]

@@ -146,7 +146,13 @@ void AnyLink::createTrayActions()
     });
 
     actionQuit = new QAction(tr("Quit"), this);
-    connect(actionQuit, &QAction::triggered, qApp, &QApplication::quit, Qt::QueuedConnection);
+    connect(actionQuit, &QAction::triggered, this, [this]() {
+        // if not connected, the app will quit, see closeEvent
+        close();
+        if(m_vpnConnected) {
+            qApp->quit();
+        }
+    });
 }
 
 void AnyLink::createTrayIcon()
